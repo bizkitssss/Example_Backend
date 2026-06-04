@@ -30,17 +30,15 @@ builder.Services.AddAutoScope();
 //builder.Services.AddScoped<IExamRepository, ExamRepository>();
 //builder.Services.AddScoped<ICommentRepository, CommentRepository>();
 
-
 // CORS
+var origins = (builder.Configuration["CorsOrigins"] ?? "").Split(';', StringSplitOptions.RemoveEmptyEntries);
 builder.Services.AddCors(options =>
 {
-    options.AddPolicy("AllowNextJS",
-        policy =>
-        {
-            policy.WithOrigins("http://localhost:3000") // Next.js default port
-                  .AllowAnyHeader()
-                  .AllowAnyMethod();
-        });
+    options.AddPolicy("CorsOrigins", policy =>
+    {
+        if (origins.Length == 1 && origins[0] == "*") policy.AllowAnyOrigin().AllowAnyHeader().AllowAnyMethod();
+        else policy.WithOrigins(origins).AllowAnyHeader().AllowAnyMethod();
+    });
 });
 
 // JWT Authentication
@@ -86,7 +84,7 @@ builder.Services.AddSwaggerGen(c =>
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
-if (app.Environment.IsDevelopment())
+if (!app.Environment.IsProduction())
 {
     app.MapOpenApi();
     app.UseSwagger();
@@ -95,7 +93,7 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
-app.UseCors("AllowNextJS");
+app.UseCors("CorsOrigins");
 
 app.UseAuthentication();
 app.UseAuthorization();
