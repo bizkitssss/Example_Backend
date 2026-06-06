@@ -34,7 +34,7 @@ builder.Services.AddAutoScope();
 var origins = (builder.Configuration["CorsOrigins"] ?? "").Split(';', StringSplitOptions.RemoveEmptyEntries);
 builder.Services.AddCors(options =>
 {
-    options.AddPolicy("CorsOrigins", policy =>
+    options.AddPolicy("CorsPolicy", policy =>
     {
         if (origins.Length == 1 && origins[0] == "*") policy.AllowAnyOrigin().AllowAnyHeader().AllowAnyMethod();
         else policy.WithOrigins(origins).AllowAnyHeader().AllowAnyMethod();
@@ -93,12 +93,12 @@ if (!app.Environment.IsProduction())
 
 app.UseHttpsRedirection();
 
-app.UseCors("CorsOrigins");
+app.UseCors("CorsPolicy");
 
 app.UseAuthentication();
 app.UseAuthorization();
 
-//app.MapControllers();
+app.MapControllers();
 app.MapControllerRoute(name: "default", pattern: "{controller=Home}/{action=Index}/{id?}");
 
 app.Run();

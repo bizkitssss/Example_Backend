@@ -34,5 +34,25 @@ namespace Backend.Controllers.Api
             await _repository.UpdateStatusAsync(id, "ไม่อนุมัติ", reason);
             return Ok();
         }
+
+        [HttpPost("bulk-approve")]
+        public async Task<IActionResult> BulkApprove([FromBody] BulkActionRequest request)
+        {
+            await _repository.UpdateStatusesAsync(request.Ids, "อนุมัติ", request.Reason);
+            return Ok();
+        }
+
+        [HttpPost("bulk-reject")]
+        public async Task<IActionResult> BulkReject([FromBody] BulkActionRequest request)
+        {
+            await _repository.UpdateStatusesAsync(request.Ids, "ไม่อนุมัติ", request.Reason);
+            return Ok();
+        }
+    }
+
+    public class BulkActionRequest
+    {
+        public List<int> Ids { get; set; } = new List<int>();
+        public string? Reason { get; set; }
     }
 }

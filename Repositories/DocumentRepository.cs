@@ -10,6 +10,7 @@ namespace Backend.Repositories
     {
         Task<IEnumerable<Document>> GetAllAsync();
         Task<int> UpdateStatusAsync(int id, string status, string? reason);
+        Task<int> UpdateStatusesAsync(IEnumerable<int> ids, string status, string? reason);
     }
 
     public class DocumentRepository : IDocumentRepository
@@ -32,6 +33,13 @@ namespace Backend.Repositories
             using var connection = _context.CreateConnection();
             var sql = "UPDATE Documents SET Status = @Status, Reason = @Reason WHERE Id = @Id";
             return await connection.ExecuteAsync(sql, new { Id = id, Status = status, Reason = reason });
+        }
+
+        public async Task<int> UpdateStatusesAsync(IEnumerable<int> ids, string status, string? reason)
+        {
+            using var connection = _context.CreateConnection();
+            var sql = "UPDATE Documents SET Status = @Status, Reason = @Reason WHERE Id IN @Ids";
+            return await connection.ExecuteAsync(sql, new { Ids = ids, Status = status, Reason = reason });
         }
     }
 }
